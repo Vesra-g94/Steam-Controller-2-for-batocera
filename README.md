@@ -4,7 +4,7 @@ Experimental userspace Bluetooth support for the **Steam Controller 2** on Batoc
 
 ## Current Status
 
-Working on **Frankendeck**.
+Working on **Steam Deck**.
 
 Batocera detects the Steam Controller 2 over Bluetooth as Valve device:
 
