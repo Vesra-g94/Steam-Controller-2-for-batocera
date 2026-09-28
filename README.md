@@ -1,10 +1,60 @@
-# v0.3.0 Expanded Button Support
+# Steam Controller 2 for Batocera
 
-v0.3.0 expands Steam Controller 2 support by exposing the controller's extra physical buttons as distinct Linux input events that Batocera can assign through its controller and global hotkey configuration.
+Userspace Bluetooth bridge for the **Steam Controller 2** on Batocera.
 
-## Newly exposed buttons
+## v0.4.0
 
-| Steam Controller 2 button | Linux input code |
+v0.4.0 adds usable analog support for both Steam Controller 2 trackpads while retaining the extra-button support from v0.3.0 and the reconnect/recovery behavior from v0.2.1.
+
+### Trackpad mapping
+
+| SC2 control | Linux input code |
+|---|---|
+| Left trackpad X | `ABS_HAT1X` |
+| Left trackpad Y | `ABS_HAT1Y` |
+| Right trackpad X | `ABS_HAT2X` |
+| Right trackpad Y | `ABS_HAT2Y` |
+
+Trackpad output is **touch-gated**. While a pad is touched, its raw X/Y position is forwarded to the virtual controller. When the finger is lifted, both axes return to `0`.
+
+Trackpad click is intentionally **not** exposed as an additional virtual button in v0.4.0. This avoids accidental button presses while moving across the pads and keeps the already-large button set manageable.
+
+## Verified trackpad report layout
+
+```text
+Left pad touch   0x02000000
+Left pad click   0x04000000
+Left pad X       s16 @ bytes 18-19
+Left pad Y       s16 @ bytes 20-21
+Left pad pressure u16 @ bytes 22-23
+
+Right pad touch   0x00200000
+Right pad click   0x00400000
+Right pad X       s16 @ bytes 24-25
+Right pad Y       s16 @ bytes 26-27
+Right pad pressure u16 @ bytes 28-29
+```
+
+Pressure and click state were identified during raw-report testing, but are not exported by the v0.4.0 virtual controller.
+
+## Batocera validation
+
+Both trackpads were confirmed through `evtest` as independent analog X/Y inputs and were accepted by Batocera controller mapping as analog movement.
+
+The virtual device advertises:
+
+```text
+ABS_HAT1X
+ABS_HAT1Y
+ABS_HAT2X
+ABS_HAT2Y
+```
+
+The axes return to center when touch ends.
+
+## Extra buttons retained from v0.3.0
+
+| SC2 button | Linux input code |
 |---|---|
 | QAM | `BTN_TRIGGER_HAPPY1` |
 | L4 | `BTN_TRIGGER_HAPPY2` |
@@ -12,118 +62,101 @@ v0.3.0 expands Steam Controller 2 support by exposing the controller's extra phy
 | R4 | `BTN_TRIGGER_HAPPY4` |
 | R5 | `BTN_TRIGGER_HAPPY5` |
 
-These names are only the internal Linux event codes. In documentation and user-facing guidance, the buttons should still be referred to by their actual Steam Controller 2 labels: QAM, L4, L5, R4, and R5.
+## Existing reconnect behavior retained
 
-## Why these input codes are used
+- No ghost virtual controller while the SC2 is off
+- Automatic Bluetooth reconnect
+- HID readiness wait
+- Connection settle delay
+- Automatic bridge start/stop/restart
+- Bluetooth adapter recovery path after repeated reconnect failures
+- Native keyboard/mouse fallback suppression while the bridge is active
 
-Linux does not currently provide native button labels specifically named `QAM`, `L4`, `L5`, `R4`, or `R5` for this controller.
+## Standard controls working
 
-The bridge therefore uses unused `BTN_TRIGGER_HAPPY*` codes so the buttons remain:
+- A / B / X / Y
+- D-pad
+- LB / RB
+- L3 / R3
+- View / Menu / Steam
+- Left and right analog sticks
+- Left and right analog triggers
 
-- distinct
-- non-conflicting with standard gamepad controls
-- visible to Batocera
-- individually assignable by the user
+## Extra controls working
 
-## Verified mapping
+- QAM
+- L4
+- L5
+- R4
+- R5
+- Left trackpad analog X/Y
+- Right trackpad analog X/Y
 
-The following raw button masks were previously identified from the Steam Controller 2 Bluetooth HID report:
+## Not yet implemented
 
-```text
-QAM  0x00000010
-R4   0x00000080
-R5   0x00000100
-L4   0x00020000
-L5   0x00040000
-```
+- Rumble / haptics
+- Gyroscope (optional / future)
 
-v0.3.0 exposes them as:
+## Requirements
 
-```text
-QAM -> BTN_TRIGGER_HAPPY1
-L4  -> BTN_TRIGGER_HAPPY2
-L5  -> BTN_TRIGGER_HAPPY3
-R4  -> BTN_TRIGGER_HAPPY4
-R5  -> BTN_TRIGGER_HAPPY5
-```
+- Batocera v43
+- Steam Controller 2 paired and trusted over Bluetooth
+- Python 3
+- `python-evdev`
+- Linux `uinput`
+- BlueZ / `bluetoothctl`
 
-## evtest validation
-
-All five buttons were confirmed to generate clean press/release events through the virtual controller:
-
-```text
-BTN_TRIGGER_HAPPY1
-BTN_TRIGGER_HAPPY2
-BTN_TRIGGER_HAPPY3
-BTN_TRIGGER_HAPPY4
-BTN_TRIGGER_HAPPY5
-```
-
-Each event produced a normal:
+## Installation
 
 ```text
-value 1
+sc2bridge.py              -> /userdata/system/sc2bridge.py
+sc2watcher.sh             -> /userdata/system/sc2watcher.sh
+services/SteamController2 -> /userdata/system/services/SteamController2
 ```
 
-on press and:
+Then:
+
+```bash
+chmod 755 /userdata/system/sc2bridge.py
+chmod 755 /userdata/system/sc2watcher.sh
+chmod 755 /userdata/system/services/SteamController2
+```
+
+Enable from Batocera:
 
 ```text
-value 0
+MAIN MENU -> SYSTEM SETTINGS -> SERVICES -> SteamController2
 ```
 
-on release.
+Or via SSH:
 
-## Batocera validation
+```bash
+batocera-services start SteamController2
+```
 
-Batocera successfully detected all five extra inputs from:
+## Upgrade from v0.3.0
+
+Only `sc2bridge.py` changed for v0.4.0.
+
+Replace:
 
 ```text
-Vesra Steam Controller 2 Bridge
+/userdata/system/sc2bridge.py
 ```
 
-and exposed them as assignable global hotkey inputs.
+Then:
 
-Observed entries included:
+```bash
+chmod 755 /userdata/system/sc2bridge.py
+batocera-services restart SteamController2
+```
+
+## Log
 
 ```text
-BTN_TRIGGER_HAPPY1
-BTN_TRIGGER_HAPPY2
-BTN_TRIGGER_HAPPY3
-BTN_TRIGGER_HAPPY4
-BTN_TRIGGER_HAPPY5
+/userdata/system/logs/sc2bridge.log
 ```
 
-The buttons were successfully assigned to Batocera actions such as:
+## License
 
-- Coin
-- Save State
-- Overlays
-- Brightness Cycle
-
-This confirms that the extra SC2 buttons can be used as normal user-configurable Batocera hotkeys.
-
-## Current v0.3.0 status
-
-Expanded button support:
-
-- QAM — working
-- L4 — working
-- L5 — working
-- R4 — working
-- R5 — working
-
-Existing v0.2.1 functionality remains unchanged:
-
-- standard gamepad controls
-- automatic Bluetooth reconnect
-- automatic bridge start/stop
-- no ghost controller while SC2 is off
-- stale Bluetooth recovery after repeated reconnect failures
-
-## Still not implemented
-
-The following remain future targets:
-
-- trackpads
-- gyroscope
-- rumble / haptics
+MIT.
