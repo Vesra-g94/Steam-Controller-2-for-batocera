@@ -1,162 +1,193 @@
-# Steam Controller 2 for Batocera
+# Steam Controller 2 for Batocera — v0.5.0 Repo Update
 
-Userspace Bluetooth bridge for the **Steam Controller 2** on Batocera.
+## v0.5.0 — Rumble / Force Feedback
 
-## v0.4.0
+This update adds working force feedback support for the Steam Controller 2 Bluetooth bridge on Batocera.
 
-v0.4.0 adds usable analog support for both Steam Controller 2 trackpads while retaining the extra-button support from v0.3.0 and the reconnect/recovery behavior from v0.2.1.
+The bridge now exposes Linux `FF_RUMBLE` through the virtual controller and translates game/emulator rumble requests into Steam Controller 2 Bluetooth HID output reports.
 
-### Trackpad mapping
+## What changed
 
-| SC2 control | Linux input code |
-|---|---|
-| Left trackpad X | `ABS_HAT1X` |
-| Left trackpad Y | `ABS_HAT1Y` |
-| Right trackpad X | `ABS_HAT2X` |
-| Right trackpad Y | `ABS_HAT2Y` |
+### Force Feedback
+- Added `FF_RUMBLE` capability to the virtual controller.
+- Added support for force-feedback effect upload, play, stop, and erase.
+- Added translation from Linux strong/weak rumble magnitudes to Steam Controller 2 haptic output.
+- Uses Steam Controller 2 output report `0x80`.
+- Uses independently addressable left and right haptic channels.
+- Uses a tested practical gain range of `1..128`.
+- Zero rumble requests send a true stop packet so the controller does not retain a light baseline vibration.
 
-Trackpad output is **touch-gated**. While a pad is touched, its raw X/Y position is forwarded to the virtual controller. When the finger is lifted, both axes return to `0`.
-
-Trackpad click is intentionally **not** exposed as an additional virtual button in v0.4.0. This avoids accidental button presses while moving across the pads and keeps the already-large button set manageable.
-
-## Verified trackpad report layout
-
-```text
-Left pad touch   0x02000000
-Left pad click   0x04000000
-Left pad X       s16 @ bytes 18-19
-Left pad Y       s16 @ bytes 20-21
-Left pad pressure u16 @ bytes 22-23
-
-Right pad touch   0x00200000
-Right pad click   0x00400000
-Right pad X       s16 @ bytes 24-25
-Right pad Y       s16 @ bytes 26-27
-Right pad pressure u16 @ bytes 28-29
-```
-
-Pressure and click state were identified during raw-report testing, but are not exported by the v0.4.0 virtual controller.
-
-## Batocera validation
-
-Both trackpads were confirmed through `evtest` as independent analog X/Y inputs and were accepted by Batocera controller mapping as analog movement.
-
-The virtual device advertises:
-
-```text
-ABS_HAT1X
-ABS_HAT1Y
-ABS_HAT2X
-ABS_HAT2Y
-```
-
-The axes return to center when touch ends.
-
-## Extra buttons retained from v0.3.0
-
-| SC2 button | Linux input code |
-|---|---|
-| QAM | `BTN_TRIGGER_HAPPY1` |
-| L4 | `BTN_TRIGGER_HAPPY2` |
-| L5 | `BTN_TRIGGER_HAPPY3` |
-| R4 | `BTN_TRIGGER_HAPPY4` |
-| R5 | `BTN_TRIGGER_HAPPY5` |
-
-## Existing reconnect behavior retained
-
-- No ghost virtual controller while the SC2 is off
-- Automatic Bluetooth reconnect
-- HID readiness wait
-- Connection settle delay
-- Automatic bridge start/stop/restart
-- Bluetooth adapter recovery path after repeated reconnect failures
-- Native keyboard/mouse fallback suppression while the bridge is active
-
-## Standard controls working
-
-- A / B / X / Y
+### Existing functionality retained
+- Standard buttons
 - D-pad
-- LB / RB
-- L3 / R3
-- View / Menu / Steam
-- Left and right analog sticks
-- Left and right analog triggers
-
-## Extra controls working
-
+- Analog sticks
+- Analog triggers
 - QAM
-- L4
-- L5
-- R4
-- R5
+- L4 / L5
+- R4 / R5
 - Left trackpad analog X/Y
 - Right trackpad analog X/Y
+- Trackpad touch gating
+- Trackpad axes reset to center on release
+- Bluetooth reconnect watcher
+- Bluetooth recovery after repeated reconnect failures
+- Fallback keyboard/mouse interface grabbing
 
-## Not yet implemented
+## Force Feedback Validation
 
-- Rumble / haptics
-- Gyroscope (optional / future)
+The following behavior has been confirmed during development:
 
-## Requirements
+- Virtual controller advertises `FF_RUMBLE`.
+- Linux FF effect upload succeeds.
+- Strong and weak magnitudes are received by the bridge.
+- FF play events start controller haptics.
+- FF stop events stop controller haptics.
+- FF erase removes the effect cleanly.
+- Left and right haptic channels can be driven independently.
+- Gain increases progressively through the usable range.
+- Gain `128` was the strongest useful tested value.
+- Values above `128` became weaker and/or asymmetric, so the bridge caps the practical range at `128`.
+- Controller sleep/reconnect recreated the bridge with force feedback still available.
+- Real in-game rumble was successfully confirmed in a Windows game running through Batocera/Wine.
 
-- Batocera v43
-- Steam Controller 2 paired and trusted over Bluetooth
-- Python 3
-- `python-evdev`
-- Linux `uinput`
-- BlueZ / `bluetoothctl`
+## Steam Controller 2 Haptic Report
 
-## Installation
-
-```text
-sc2bridge.py              -> /userdata/system/sc2bridge.py
-sc2watcher.sh             -> /userdata/system/sc2watcher.sh
-services/SteamController2 -> /userdata/system/services/SteamController2
-```
-
-Then:
-
-```bash
-chmod 755 /userdata/system/sc2bridge.py
-chmod 755 /userdata/system/sc2watcher.sh
-chmod 755 /userdata/system/services/SteamController2
-```
-
-Enable from Batocera:
+Bluetooth HID output report used for rumble:
 
 ```text
-MAIN MENU -> SYSTEM SETTINGS -> SERVICES -> SteamController2
+Report ID: 0x80
+Total packet size: 10 bytes
 ```
 
-Or via SSH:
+Current bridge packet layout:
+
+```text
+0x80
+type
+intensity (u16 LE)
+left_speed (u16 LE)
+left_gain (u8)
+right_speed (u16 LE)
+right_gain (u8)
+```
+
+The current implementation uses:
+
+```text
+HAPTIC_SPEED = 18000
+HAPTIC_MAX_GAIN = 128
+```
+
+Linux rumble magnitudes are scaled from:
+
+```text
+0..65535
+```
+
+to:
+
+```text
+0 = true stop
+1..65535 = gain 1..128
+```
+
+## Trackpad Support from v0.4.0
+
+Trackpads remain exposed as analog axes:
+
+```text
+Left pad:
+X -> ABS_HAT1X
+Y -> ABS_HAT1Y
+
+Right pad:
+X -> ABS_HAT2X
+Y -> ABS_HAT2Y
+```
+
+Trackpad click is intentionally not exposed as an additional button to reduce accidental clicks while using the pads as analog controls.
+
+## Extra Button Mapping
+
+```text
+QAM -> BTN_TRIGGER_HAPPY1
+L4  -> BTN_TRIGGER_HAPPY2
+L5  -> BTN_TRIGGER_HAPPY3
+R4  -> BTN_TRIGGER_HAPPY4
+R5  -> BTN_TRIGGER_HAPPY5
+```
+
+## Bluetooth HID Identity
+
+Confirmed Steam Controller 2 Bluetooth identity:
+
+```text
+Bus:     0005
+Vendor:  28DE
+Product: 1303
+HID_ID:  0005:000028DE:00001303
+Driver:  hid-generic
+```
+
+The bridge auto-detects the controller by HID identity and does not depend on a fixed `/dev/hidrawX` number.
+
+## Install Paths
+
+```text
+/userdata/system/sc2bridge.py
+/userdata/system/sc2watcher.sh
+/userdata/system/services/SteamController2
+```
+
+Enable the service from Batocera:
+
+```text
+MAIN MENU
+> SYSTEM SETTINGS
+> SERVICES
+> SteamController2
+```
+
+Or start it manually over SSH:
 
 ```bash
 batocera-services start SteamController2
 ```
 
-## Upgrade from v0.3.0
-
-Only `sc2bridge.py` changed for v0.4.0.
-
-Replace:
-
-```text
-/userdata/system/sc2bridge.py
-```
-
-Then:
-
-```bash
-chmod 755 /userdata/system/sc2bridge.py
-batocera-services restart SteamController2
-```
-
-## Log
+## Logs
 
 ```text
 /userdata/system/logs/sc2bridge.log
 ```
 
-## License
+Example:
 
-MIT.
+```bash
+tail -n 100 /userdata/system/logs/sc2bridge.log
+```
+
+## Testing Status
+
+v0.5.0 has passed development testing for:
+- standard controller input
+- expanded buttons
+- dual analog trackpads
+- Bluetooth reconnect
+- force-feedback upload/play/stop/erase
+- real in-game rumble
+
+Additional independent testing is encouraged before treating the release as fully validated across more Batocera systems, Bluetooth adapters, controller units, and games.
+
+## Suggested Release
+
+Tag:
+
+```text
+v0.5.0
+```
+
+Release title:
+
+```text
+Steam Controller 2 for Batocera v0.5.0
+```
