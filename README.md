@@ -1,255 +1,129 @@
-# Steam Controller 2 for Batocera — v0.2.0 Test Data
+# v0.3.0 Expanded Button Support
 
-This document records the compatibility and behavior observed while developing
-v0.2.0 of the Steam Controller 2 userspace bridge for Batocera.
+v0.3.0 expands Steam Controller 2 support by exposing the controller's extra physical buttons as distinct Linux input events that Batocera can assign through its controller and global hotkey configuration.
 
-## Bluetooth HID Identity
+## Newly exposed buttons
 
-Two separate Steam Controller 2 units were checked independently.
+| Steam Controller 2 button | Linux input code |
+|---|---|
+| QAM | `BTN_TRIGGER_HAPPY1` |
+| L4 | `BTN_TRIGGER_HAPPY2` |
+| L5 | `BTN_TRIGGER_HAPPY3` |
+| R4 | `BTN_TRIGGER_HAPPY4` |
+| R5 | `BTN_TRIGGER_HAPPY5` |
 
-Both reported:
+These names are only the internal Linux event codes. In documentation and user-facing guidance, the buttons should still be referred to by their actual Steam Controller 2 labels: QAM, L4, L5, R4, and R5.
 
-```text
-Bus=0005
-Vendor=28de
-Product=1303
-Version=0100
-HID_ID=0005:000028DE:00001303
-DRIVER=hid-generic
-```
+## Why these input codes are used
 
-The per-controller values were different, as expected:
+Linux does not currently provide native button labels specifically named `QAM`, `L4`, `L5`, `R4`, or `R5` for this controller.
 
-- `HID_UNIQ` / Bluetooth MAC address
-- `HID_NAME` serial-like suffix
-- `/dev/hidrawX` number
-- `/dev/input/eventXX` numbers
+The bridge therefore uses unused `BTN_TRIGGER_HAPPY*` codes so the buttons remain:
 
-The bridge therefore identifies the controller by:
+- distinct
+- non-conflicting with standard gamepad controls
+- visible to Batocera
+- individually assignable by the user
 
-```text
-28DE:1303
-```
+## Verified mapping
 
-rather than by a hard-coded `hidraw` or `event` number.
-
-## Native Batocera Exposure
-
-Before the bridge is active, the Steam Controller 2 is exposed by Batocera as
-Bluetooth keyboard and mouse fallback interfaces.
-
-Observed examples:
+The following raw button masks were previously identified from the Steam Controller 2 Bluetooth HID report:
 
 ```text
-Steam Ctrl (BT) ... Mouse
-Steam Ctrl (BT) ... Keyboard
+QAM  0x00000010
+R4   0x00000080
+R5   0x00000100
+L4   0x00020000
+L5   0x00040000
 ```
 
-The bridge temporarily grabs those fallback interfaces while it is active so
-they do not interfere with Batocera controller mapping.
-
-## Virtual Gamepad
-
-When the bridge is active, Linux exposes:
+v0.3.0 exposes them as:
 
 ```text
-Name="Vesra Steam Controller 2 Bridge"
-Phys=py-evdev-uinput
+QAM -> BTN_TRIGGER_HAPPY1
+L4  -> BTN_TRIGGER_HAPPY2
+L5  -> BTN_TRIGGER_HAPPY3
+R4  -> BTN_TRIGGER_HAPPY4
+R5  -> BTN_TRIGGER_HAPPY5
 ```
 
-Observed handlers included:
+## evtest validation
+
+All five buttons were confirmed to generate clean press/release events through the virtual controller:
 
 ```text
-eventXX
-js3
+BTN_TRIGGER_HAPPY1
+BTN_TRIGGER_HAPPY2
+BTN_TRIGGER_HAPPY3
+BTN_TRIGGER_HAPPY4
+BTN_TRIGGER_HAPPY5
 ```
 
-The exact event number changes between sessions and is not hard-coded.
-
-## Standard Controls Verified
-
-The following controls were verified through the userspace bridge:
-
-- A / B / X / Y
-- D-pad
-- LB / RB
-- L3 / R3
-- View
-- Menu
-- Steam button
-- Left analog stick
-- Right analog stick
-- Left analog trigger
-- Right analog trigger
-
-The D-pad is exposed as digital gamepad buttons.
-
-## Raw Button Bit Mapping
-
-Verified button masks:
+Each event produced a normal:
 
 ```text
-A           0x00000001
-B           0x00000002
-X           0x00000004
-Y           0x00000008
-
-QAM         0x00000010
-R3          0x00000020
-View        0x00000040
-R4          0x00000080
-R5          0x00000100
-RB          0x00000200
-
-D-pad Down  0x00000400
-D-pad Right 0x00000800
-D-pad Left  0x00001000
-D-pad Up    0x00002000
-
-Menu        0x00004000
-L3          0x00008000
-Steam       0x00010000
-L4          0x00020000
-L5          0x00040000
-LB          0x00080000
+value 1
 ```
 
-Additional higher-order state bits were observed for touch/click/grip states,
-but those features are not yet exposed by v0.2.0.
-
-## Analog Report Layout
-
-The bridge currently decodes the `0x45` HID report as:
+on press and:
 
 ```text
-buttons = u32(data, 2)
-
-LT = u16(data, 6)
-RT = u16(data, 8)
-
-LX = s16(data, 10)
-LY = s16(data, 12)
-RX = s16(data, 14)
-RY = s16(data, 16)
+value 0
 ```
 
-Observed trigger range:
+on release.
+
+## Batocera validation
+
+Batocera successfully detected all five extra inputs from:
 
 ```text
-0 .. 32767
+Vesra Steam Controller 2 Bridge
 ```
 
-Observed stick range:
+and exposed them as assignable global hotkey inputs.
+
+Observed entries included:
 
 ```text
-approximately -32768 .. 32767
+BTN_TRIGGER_HAPPY1
+BTN_TRIGGER_HAPPY2
+BTN_TRIGGER_HAPPY3
+BTN_TRIGGER_HAPPY4
+BTN_TRIGGER_HAPPY5
 ```
 
-A software dead zone of `1800` is currently applied to the four stick axes.
+The buttons were successfully assigned to Batocera actions such as:
 
-## v0.2.0 Lifecycle Test
+- Coin
+- Save State
+- Overlays
+- Brightness Cycle
 
-The following sequence was validated on Batocera v43:
+This confirms that the extra SC2 buttons can be used as normal user-configurable Batocera hotkeys.
 
-### 1. Controller powered off
+## Current v0.3.0 status
 
-Result:
+Expanded button support:
 
-```text
-sc2watcher.sh running
-sc2bridge.py not running
-no Vesra virtual controller present
-```
+- QAM — working
+- L4 — working
+- L5 — working
+- R4 — working
+- R5 — working
 
-PASS
+Existing v0.2.1 functionality remains unchanged:
 
-### 2. Controller powered on
+- standard gamepad controls
+- automatic Bluetooth reconnect
+- automatic bridge start/stop
+- no ghost controller while SC2 is off
+- stale Bluetooth recovery after repeated reconnect failures
 
-The watcher detected the paired controller, allowed the Bluetooth/HID connection
-to settle, and started the bridge.
+## Still not implemented
 
-Observed log:
+The following remain future targets:
 
-```text
-Allowing SC2 connection to settle.
-Steam Controller 2 connection is stable.
-Starting Steam Controller 2 bridge.
-```
-
-The virtual controller appeared successfully.
-
-PASS
-
-### 3. Controller powered off again
-
-The raw HID device disappeared, the bridge exited, and the virtual gamepad was
-removed.
-
-The watcher remained running.
-
-PASS
-
-### 4. Controller powered back on
-
-The watcher automatically restored the Bluetooth connection, waited for the HID
-interface, and restarted the bridge.
-
-Observed state:
-
-```text
-Connected: yes
-```
-
-and the virtual controller reappeared.
-
-PASS
-
-## Reconnect Issue Found During Development
-
-An earlier watcher revision repeatedly issued `bluetoothctl connect` while the
-Bluetooth connection was still initializing.
-
-This produced errors such as:
-
-```text
-org.bluez.Error.Failed le-connection-abort-by-local
-```
-
-The final v0.2.0 watcher avoids that behavior by separating the connection state
-into stages:
-
-```text
-Disconnected
-    -> request Bluetooth connection
-
-Bluetooth connected but HID not ready
-    -> wait; do not issue another connection request
-
-Bluetooth connected + HID present
-    -> allow settle delay
-    -> start bridge
-```
-
-That state handling produced a successful off/on/off/reconnect cycle.
-
-## Compatibility Status
-
-Confirmed so far:
-
-- 2 separate Steam Controller 2 units report Bluetooth HID `28DE:1303`
-- Batocera exposes the same keyboard/mouse fallback structure on the independently tested controller
-- v0.2.0 automatic bridge lifecycle was validated on Batocera v43
-
-This is encouraging compatibility data, but it is not yet proof of universal
-compatibility across every Steam Controller 2 firmware revision or every
-Batocera hardware platform.
-
-## Features Not Yet Validated / Implemented
-
-- QAM as a mapped gamepad control
-- L4 / L5 / R4 / R5 rear buttons
-- Trackpads
-- Gyroscope
-- Rumble / haptics
-
-These remain future development targets.
+- trackpads
+- gyroscope
+- rumble / haptics
