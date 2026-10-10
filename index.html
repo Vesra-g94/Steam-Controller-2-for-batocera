@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Vesra's Workshop — Batocera projects, launchers, guides, downloads, and experiments built for handhelds and Linux gaming.">
+  <meta name="theme-color" content="#0b0c0e">
+  <title>Vesra's Workshop</title>
+  <meta property="og:title" content="Vesra's Workshop">
+  <meta property="og:description" content="Batocera, Linux, handhelds, SSH, launchers, guides, and projects from Vesra's Workshop.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vesra-g94.github.io/">
+  <meta property="og:image" content="https://vesra-g94.github.io/assets/workshop-banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vesra's Workshop">
+  <meta name="twitter:description" content="Batocera, Linux, handhelds, SSH, launchers, guides, and projects from Vesra's Workshop.">
+  <meta name="twitter:image" content="https://vesra-g94.github.io/assets/workshop-banner.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="hero" id="top">
+    <nav class="nav wrap">
+      <a class="brand" href="#top"><img class="brand-logo" src="assets/vesra-logo.png" alt="Vesra logo"> <span>VESRA'S WORKSHOP</span></a>
+      <div class="navlinks">
+        <a href="#projects">Projects</a>
+        <a href="#guides">Guides</a>
+        <a href="#downloads">Downloads</a>
+        <a href="#about">About</a>
+      </div>
+    </nav>
+
+    <div class="hero-grid wrap">
+      <div class="hero-content">
+        <p class="eyebrow">BATOCERA • LINUX • HANDHELDS • SSH</p>
+        <h1>VESRA'S<br><span>WORKSHOP</span></h1>
+        <p class="tagline">If it runs, ship it.<br><strong>If it doesn't, it WILL be SSH'ed.</strong></p>
+        <div class="actions">
+          <a class="button primary" href="#projects">See the projects</a>
+          <a class="button" href="https://github.com/Vesra-g94" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+      <div class="hero-logo-wrap" aria-hidden="true">
+        <img class="hero-logo" src="assets/vesra-logo.png" alt="">
+      </div>
+    </div>
+
+    <a class="scroll-cue" href="#projects" aria-label="Scroll to projects">↓</a>
+  </header>
+
+  <main>
+    
+  <section class="workshop-showcase" aria-label="Vesra's Workshop banner">
+    <div class="container">
+      <img src="assets/workshop-banner.png" alt="Vesra's Workshop — If it runs, ship it. If it doesn't, it WILL be SSH'ed." loading="lazy">
+    </div>
+  </section>
+
+<section id="projects" class="section wrap">
+      <div class="section-heading split-heading">
+        <div>
+          <p class="eyebrow">BUILT IN THE WORKSHOP</p>
+          <h2>Projects</h2>
+        </div>
+        <p class="section-copy">Launchers, scripts, Batocera experiments and fixes that made it off the bench.</p>
+      </div>
+
+      <article class="project-hero">
+        <div class="project-hero-copy">
+          <div class="badge">FEATURED PROJECT</div>
+          <h3>Pix'n Portal Launcher</h3>
+          <p>A Batocera/RGS ports-menu launcher for Team Pixel Nostalgia's Pix'n Portal. Built to get from EmulationStation to the portal without turning the handheld into a desktop project.</p>
+          <div class="project-tags">
+            <span>Batocera</span><span>RGS</span><span>Linux</span><span>Handhelds</span>
+          </div>
+          <div class="actions compact">
+            <a class="button primary" href="https://github.com/Vesra-g94/pixn-portal-full" target="_blank" rel="noopener">Full repository ↗</a>
+            <a class="button" href="https://github.com/Vesra-g94/pixn-portal-lite" target="_blank" rel="noopener">Lite repository ↗</a>
+            <a class="button video-button" href="https://youtu.be/FXvD-t4NhRM" target="_blank" rel="noopener">▶ Watch the video ↗</a>
+          </div>
+          <p class="video-credit">Video by <a href="https://www.youtube.com/@rapsters-tech-hangout" target="_blank" rel="noopener"><strong>RapsterUK</strong></a> · <a href="https://github.com/PixelNostalgia" target="_blank" rel="noopener">Team Pixel Nostalgia</a></p>
+        </div>
+        <div class="project-mark" aria-hidden="true">P<span>×</span>P</div>
+      </article>
+
+
+      <article class="project-hero" aria-label="Current active project">
+        <div class="project-hero-copy">
+          <div class="badge">ACTIVE DEVELOPMENT · v0.8.0</div>
+          <h3>Steam Controller 2 for Batocera</h3>
+          <p>A userspace Bluetooth bridge that gives the Steam Controller 2 full virtual gamepad support in Batocera without rebuilding or patching the kernel.</p>
+          <p>v0.8.0 adds a dedicated virtual mouse: the right trackpad controls pointer movement, while physical clicks on the left or right half of the left trackpad act as left and right mouse buttons. Standard controls, extra buttons, rumble, and automatic Bluetooth reconnect remain intact.</p>
+          <p>Bluetooth HID <strong>28DE:1303</strong> has been independently confirmed on two separate Steam Controller 2 units, and normal controller operation has now passed testing on a second controller.</p>
+          <div class="project-tags">
+            <span>Batocera v43</span><span>Bluetooth</span><span>Gamepad + Mouse</span><span>FF Rumble</span><span>Python</span><span>uinput</span>
+          </div>
+          <div class="actions compact">
+            <a class="button primary" href="guides/steam-controller-2-bridge.html">Project progress</a>
+            <a class="button" href="https://github.com/Vesra-g94/Steam-Controller-2-for-batocera" target="_blank" rel="noopener">GitHub repository ↗</a>
+          </div>
+        </div>
+        <div class="project-mark" aria-hidden="true">SC<span>2</span></div>
+      </article>
+
+      <div class="repo-grid">
+        <a class="repo-card" href="https://github.com/Vesra-g94/pixn-portal-full" target="_blank" rel="noopener">
+          <div class="repo-card-top"><span class="mini-badge">PIX'N PORTAL</span><span class="status">FULL</span></div>
+          <h3>Pix'n Portal — Full</h3>
+          <p>The full Batocera/RGS launcher build, including the extra desktop-tool option for systems that want it.</p>
+          <div class="repo-footer"><span>Open repository</span><span class="repo-arrow">↗</span></div>
+        </a>
+
+        <a class="repo-card" href="https://github.com/Vesra-g94/pixn-portal-lite" target="_blank" rel="noopener">
+          <div class="repo-card-top"><span class="mini-badge">PIX'N PORTAL</span><span class="status">LITE</span></div>
+          <h3>Pix'n Portal — Lite</h3>
+          <p>The lean handheld build: portal launcher, browser handling, and the pieces needed to get straight to the content.</p>
+          <div class="repo-footer"><span>Open repository</span><span class="repo-arrow">↗</span></div>
+        </a>
+
+        <a class="repo-card" href="https://github.com/Vesra-g94/qBittorrent-launcher" target="_blank" rel="noopener">
+          <div class="repo-card-top"><span class="mini-badge">BATOCERA</span><span class="status">UTILITY</span></div>
+          <h3>qBittorrent Launcher</h3>
+          <p>A Ports-menu launcher that gets qBittorrent open without taking the long way through Batocera's F1 desktop.</p>
+          <div class="repo-footer"><span>Open repository</span><span class="repo-arrow">↗</span></div>
+        </a>
+
+        <a class="repo-card" href="https://github.com/Vesra-g94/Steam-Controller-2-for-batocera" target="_blank" rel="noopener">
+          <div class="repo-card-top"><span class="mini-badge">STEAM CONTROLLER 2</span><span class="status">v0.8.0</span></div>
+          <h3>Steam Controller 2 for Batocera</h3>
+          <p>Userspace Bluetooth gamepad support with rumble, extra buttons, automatic reconnect, right-trackpad mouse movement, and left-pad mouse clicks.</p>
+          <div class="repo-footer"><span>Open repository</span><span class="repo-arrow">↗</span></div>
+        </a>
+      </div>
+
+      <div class="github-strip">
+        <div>
+          <span class="mini-badge">SOURCE + FILES</span>
+          <strong>GitHub stays the Workshop shelf.</strong>
+          <p>Project pages here explain what each build does; the repositories hold the actual files, updates, and documentation.</p>
+        </div>
+        <a class="button" href="https://github.com/Vesra-g94" target="_blank" rel="noopener">View all GitHub projects ↗</a>
+      </div>
+    </section>
+
+    <section class="manifesto">
+      <div class="wrap manifesto-inner">
+        <p>TEST IT.</p><span>→</span><p>BREAK IT.</p><span>→</span><p>SSH IT.</p><span>→</span><p>SHIP IT.</p>
+      </div>
+    </section>
+
+    <section id="guides" class="section section-dark">
+      <div class="wrap">
+        <div class="section-heading split-heading">
+          <div>
+            <p class="eyebrow">NOTES FROM THE BENCH</p>
+            <h2>Guides</h2>
+          </div>
+          <p class="section-copy">The useful part of the troubleshooting: what worked, what failed, and the commands worth keeping.</p>
+        </div>
+
+        <div class="grid guide-grid">
+          <a class="panel numbered guide-card" href="guides/pixn-portal.html">
+            <span class="number">01</span>
+            <h3>Installing Pix’n Portal on Batocera</h3>
+            <p>Requirements, browser handling, Full vs Lite, and where the RGS .api files belong.</p>
+            <span class="text-link">Read guide →</span>
+          </a>
+          <a class="panel numbered guide-card" href="guides/qbittorrent.html">
+            <span class="number">02</span>
+            <h3>qBittorrent Launcher for Batocera</h3>
+            <p>A short guide for adding qBittorrent to the Ports menu so it can be launched directly from EmulationStation.</p>
+            <span class="text-link">Read guide →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="downloads" class="section wrap">
+      <div class="section-heading split-heading">
+        <div>
+          <p class="eyebrow">SHIP IT</p>
+          <h2>Downloads</h2>
+        </div>
+        <p class="section-copy">The website points to the source. GitHub stays the home for project files and releases.</p>
+      </div>
+
+      <div class="download-grid">
+        <a class="download-card" href="https://github.com/Vesra-g94/pixn-portal-full" target="_blank" rel="noopener">
+          <span class="download-icon">↓</span>
+          <div><strong>Pix'n Portal — Full</strong><small>Repository & project files</small></div>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="download-card" href="https://github.com/Vesra-g94/pixn-portal-lite" target="_blank" rel="noopener">
+          <span class="download-icon">↓</span>
+          <div><strong>Pix'n Portal — Lite</strong><small>Repository & project files</small></div>
+          <span class="arrow">↗</span>
+        </a>
+        <a class="download-card" href="https://github.com/Vesra-g94/qBittorrent-launcher" target="_blank" rel="noopener">
+          <span class="download-icon">↓</span>
+          <div><strong>qBittorrent Launcher</strong><small>Repository & project files</small></div>
+          <span class="arrow">↗</span>
+        </a>
+
+        <a class="download-card" href="https://github.com/Vesra-g94/Steam-Controller-2-for-batocera" target="_blank" rel="noopener">
+          <span class="download-icon">↓</span>
+          <div><strong>Steam Controller 2 for Batocera</strong><small>v0.8.0 · gamepad, rumble, mouse controls & test data</small></div>
+          <span class="arrow">↗</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="about" class="section section-dark">
+      <div class="wrap about">
+        <div>
+          <p class="eyebrow">ABOUT THE WORKSHOP</p>
+          <h2>Built by tinkering.</h2>
+        </div>
+        <div>
+          <p>Vesra's Workshop is a home for Batocera experiments, handheld projects, launchers, ports, guides, and whatever else survives the SSH treatment.</p>
+          <p class="about-small">The rule is simple: test on the bench, keep what works, document it, and ship it.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner">
+      <span>© <span id="year"></span> Vesra's Workshop</span>
+      <a href="https://github.com/Vesra-g94" target="_blank" rel="noopener">github.com/Vesra-g94</a>
+      <span>If it runs, ship it.</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
